@@ -4,9 +4,10 @@ name: CI
   push:
     branches: ["**"]
   pull_request:
-  # Weekly rebuild picks up new releases of the npm plugin and theme, which
-  # the Dockerfile installs unpinned. Base image bumps (new tag, or the same
-  # tag republished with a new digest) arrive as Renovate PRs.
+  # The schedule only runs cache-cleanup. Images are built on push: the base
+  # image is pinned by digest, so a scheduled rebuild would only move the
+  # version tag's digest and restart every consumer for nothing. Base image
+  # bumps (new tag, or the same tag republished) arrive as Renovate PRs.
   schedule:
     - cron: "0 6 * * 1"
   workflow_dispatch:
@@ -23,17 +24,39 @@ permissions:
   security-events: write
 
 jobs:
+  # The image version is the upstream The Lounge version in the Dockerfile's
+  # FROM line, not a git tag. Every main build re-pushes that tag, so a rebuild
+  # (a patch change, or upstream republishing the same version) moves its
+  # digest and consumers pinning tag@digest get a digest update.
+  version:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.from.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - id: from
+        run: |
+          tag=$(sed -n 's#^FROM .*thelounge/thelounge:\([^@]*\)@.*#\1#p' Dockerfile)
+          [[ $tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::no version in the FROM line: '$tag'"; exit 1; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   docker:
-    uses: mbologna/.github/.github/workflows/docker-ci.yml@0436a70711b0ac798568028cba01d78e896e4075 # main
+    if: github.event_name != 'schedule'
+    needs: version
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@34ddd5146432411b41591f745437c16515376361 # main
     with:
       image_name: thelounge-patched
+      extra_tags: type=raw,value=${{ needs.version.outputs.tag }},enable={{is_default_branch}}
       push_to_dockerhub: false
       enable_cosign: true
     secrets: inherit
 
   cache-cleanup:
     if: github.event_name == 'schedule'
-    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@0436a70711b0ac798568028cba01d78e896e4075 # main
+    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@34ddd5146432411b41591f745437c16515376361 # main
     with:
       max_age_days: 7
     permissions:
