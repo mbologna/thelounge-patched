@@ -1,0 +1,40 @@
+name: CI
+
+"on":
+  push:
+    branches: ["**"]
+  pull_request:
+  # Weekly rebuild picks up new releases of the npm plugin and theme, which
+  # the Dockerfile installs unpinned. Base image bumps (new tag, or the same
+  # tag republished with a new digest) arrive as Renovate PRs.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+  attestations: write
+  security-events: write
+
+jobs:
+  docker:
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@0436a70711b0ac798568028cba01d78e896e4075 # main
+    with:
+      image_name: thelounge-patched
+      push_to_dockerhub: false
+      enable_cosign: true
+    secrets: inherit
+
+  cache-cleanup:
+    if: github.event_name == 'schedule'
+    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@0436a70711b0ac798568028cba01d78e896e4075 # main
+    with:
+      max_age_days: 7
+    permissions:
+      actions: write
