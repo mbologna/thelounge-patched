@@ -46,7 +46,7 @@ jobs:
   docker:
     if: github.event_name != 'schedule'
     needs: version
-    uses: mbologna/.github/.github/workflows/docker-ci.yml@34ddd5146432411b41591f745437c16515376361 # main
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@a05097810ce875a71d97a3c61c7d8c8f8646bafe # main
     with:
       image_name: thelounge-patched
       extra_tags: type=raw,value=${{ needs.version.outputs.tag }},enable={{is_default_branch}}
@@ -56,7 +56,7 @@ jobs:
 
   cache-cleanup:
     if: github.event_name == 'schedule'
-    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@34ddd5146432411b41591f745437c16515376361 # main
+    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@a05097810ce875a71d97a3c61c7d8c8f8646bafe # main
     with:
       max_age_days: 7
     permissions:
