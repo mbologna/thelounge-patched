@@ -30,7 +30,7 @@ jobs:
   # digest and consumers pinning tag@digest get a digest update.
   version:
     if: github.event_name != 'schedule'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
