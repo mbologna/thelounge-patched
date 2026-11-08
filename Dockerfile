@@ -1,4 +1,4 @@
-FROM docker.io/thelounge/thelounge:4.5.2@sha256:00b0f614c4414dbd195ed1ece958095d29c7013ad608c038717076bf8582cb22
+FROM docker.io/thelounge/thelounge:4.5.2@sha256:16eaa53fd6bfc648d99f5c38ae391bd5404079e876856ef9793e4397630b27c2
 
 # One script per upstream PR (open, or still to be drafted): see patches/ and
 # the table in README.md. Each fails the build if the code it edits changed
