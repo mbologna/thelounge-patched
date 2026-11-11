@@ -2,7 +2,7 @@ name: CI
 
 "on":
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   # The schedule only runs cache-cleanup. Images are built on push: the base
   # image is pinned by digest, so a scheduled rebuild would only move the
@@ -46,9 +46,12 @@ jobs:
   docker:
     if: github.event_name != 'schedule'
     needs: version
-    uses: mbologna/.github/.github/workflows/docker-ci.yml@8f27b292381a0288ffea3cbfda2f325819bf7262 # main
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@92e06b193222ca7eaaa49380dc25e027d4b7987d # main
     with:
       image_name: thelounge-patched
+      # push: there are no releases; each main build re-pushes the
+      # version tag above.
+      publish: push
       extra_tags: type=raw,value=${{ needs.version.outputs.tag }},enable={{is_default_branch}}
       push_to_dockerhub: false
       enable_cosign: true
@@ -56,7 +59,7 @@ jobs:
 
   cache-cleanup:
     if: github.event_name == 'schedule'
-    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@8f27b292381a0288ffea3cbfda2f325819bf7262 # main
+    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@92e06b193222ca7eaaa49380dc25e027d4b7987d # main
     with:
       max_age_days: 7
     permissions:
