@@ -4,12 +4,10 @@ name: CI
   push:
     branches: [main]
   pull_request:
-  # The schedule only runs cache-cleanup. Images are built on push: the base
-  # image is pinned by digest, so a scheduled rebuild would only move the
-  # version tag's digest and restart every consumer for nothing. Base image
-  # bumps (new tag, or the same tag republished) arrive as Renovate PRs.
-  schedule:
-    - cron: "0 6 * * 1"
+  # No schedule. Images are built on push: the base image is pinned by
+  # digest, so a scheduled rebuild would only move the version tag's digest
+  # and restart every consumer for nothing. Base image bumps (new tag, or the
+  # same tag republished) arrive as Renovate PRs.
   workflow_dispatch:
 
 concurrency:
@@ -29,7 +27,6 @@ jobs:
   # (a patch change, or upstream republishing the same version) moves its
   # digest and consumers pinning tag@digest get a digest update.
   version:
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     permissions:
       contents: read
@@ -44,9 +41,8 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
   docker:
-    if: github.event_name != 'schedule'
     needs: version
-    uses: mbologna/.github/.github/workflows/docker-ci.yml@4ba7c7930fdf79124c856073037b1f20a41ea98e # main
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@ee5bcf8cd73154eaccd48e386919f73d2dd832e2 # main
     with:
       image_name: thelounge-patched
       # push: there are no releases; each main build re-pushes the
@@ -54,13 +50,4 @@ jobs:
       publish: push
       extra_tags: type=raw,value=${{ needs.version.outputs.tag }},enable={{is_default_branch}}
       push_to_dockerhub: false
-      enable_cosign: true
     secrets: inherit
-
-  cache-cleanup:
-    if: github.event_name == 'schedule'
-    uses: mbologna/.github/.github/workflows/cache-cleanup.yml@4ba7c7930fdf79124c856073037b1f20a41ea98e # main
-    with:
-      max_age_days: 7
-    permissions:
-      actions: write
