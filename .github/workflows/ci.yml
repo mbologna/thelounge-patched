@@ -42,7 +42,7 @@ jobs:
 
   docker:
     needs: version
-    uses: mbologna/.github/.github/workflows/docker-ci.yml@65000f3803251d78b7353ca06f44b9745d8260fc # main
+    uses: mbologna/.github/.github/workflows/docker-ci.yml@09bc881c557dd70bead1932e686f5dff713d4be4 # main
     with:
       image_name: thelounge-patched
       # push: there are no releases; each main build re-pushes the
