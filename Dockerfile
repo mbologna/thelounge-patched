@@ -2,6 +2,9 @@ FROM docker.io/thelounge/thelounge:4.5.2@sha256:b19c2ef06efce2a494a7f142e5acba2d
 
 USER root
 
+# Alpine's security fixes published since the upstream image was built.
+RUN apk upgrade --no-cache
+
 # One script per upstream PR (open, or still to be drafted): see patches/ and
 # the table in README.md. Each fails the build if the code it edits changed
 # upstream, and verify.js checks the SQLite patches on a real database. The
