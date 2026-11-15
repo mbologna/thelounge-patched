@@ -1,4 +1,4 @@
-FROM docker.io/thelounge/thelounge:4.5.2@sha256:16eaa53fd6bfc648d99f5c38ae391bd5404079e876856ef9793e4397630b27c2
+FROM docker.io/thelounge/thelounge:4.5.2@sha256:b19c2ef06efce2a494a7f142e5acba2db3086a591453f25916e204d342e3d194
 
 USER root
 
