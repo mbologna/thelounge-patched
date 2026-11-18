@@ -7,13 +7,16 @@ RUN apk upgrade --no-cache
 
 # One script per upstream PR (open, or still to be drafted): see patches/ and
 # the table in README.md. Each fails the build if the code it edits changed
-# upstream, and verify.js checks the SQLite patches on a real database. The
-# scripts are bind-mounted, so they never become a layer of the image.
+# upstream. verify.js checks the SQLite patches on a real database and
+# verify-keep-nick.js checks the nick patch. The scripts are bind-mounted,
+# so they never become a layer of the image.
 RUN --mount=type=bind,source=patches,target=/tmp/patches \
     node /tmp/patches/irc-framework-413-reconnect.js \
     && node /tmp/patches/thelounge-sqlite-wal.js \
     && node /tmp/patches/thelounge-5158-type-time-index.js \
-    && node /tmp/patches/verify.js
+    && node /tmp/patches/thelounge-keep-nick.js \
+    && node /tmp/patches/verify.js \
+    && node /tmp/patches/verify-keep-nick.js
 
 # The node base image also ships npm, npx, corepack and a global yarn. The
 # Lounge needs none of them: `thelounge install` runs the yarn that is one of
