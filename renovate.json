@@ -2,5 +2,29 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>mbologna/.github//renovate-config.json"
+  ],
+  "packageRules": [
+    {
+      "description": "A The Lounge minor is a feature release of this image (VERSIONING.md in mbologna/.github: an upstream update bumps by its own impact). Committed as feat, auto-release makes it a minor, e.g. v1.0.0+up4.5.2 to v1.1.0+up4.6.0. Patches keep the preset's chore(deps) and release a patch.",
+      "matchDepNames": [
+        "thelounge/thelounge",
+        "docker.io/thelounge/thelounge"
+      ],
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "commitMessagePrefix": "feat(deps):"
+    },
+    {
+      "description": "A The Lounge major is a breaking change for this image's users (config, plugins, Node). Committed as a breaking feat, auto-release makes it a major, e.g. v1.1.0+up4.6.0 to v2.0.0+up5.0.0.",
+      "matchDepNames": [
+        "thelounge/thelounge",
+        "docker.io/thelounge/thelounge"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "commitMessagePrefix": "feat(deps)!:"
+    }
   ]
 }
