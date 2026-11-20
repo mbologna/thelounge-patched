@@ -7,7 +7,7 @@ name: CI
     # pushed by hand (the first one) starts it here.
     tags: ["v*"]
   pull_request:
-  # Monday's release run: auto-release tags v<upstream>+r<N> when a
+  # Monday's release run: auto-release tags vX.Y.Z+up<upstream> when a
   # releasable commit or an upstream bump landed. It builds nothing itself.
   schedule:
     - cron: "0 6 * * 1"
@@ -23,11 +23,11 @@ permissions:
   contents: read
 
 jobs:
-  # Releases follow pattern B of mbologna/.github's VERSIONING.md: the tag is
-  # the upstream The Lounge version from the Dockerfile's FROM line plus this
-  # repository's release number on it, v4.5.2+r1. Its build pushes 4.5.2-r1,
-  # which never moves, and 4.5.2, 4.5 and latest, which follow the newest
-  # release. Pull requests build without pushing.
+  # Releases follow mbologna/.github's VERSIONING.md: this repository's own
+  # SemVer with the upstream The Lounge version from the Dockerfile's FROM
+  # line as build metadata, v1.0.0+up4.5.2. Its build pushes 1.0.0, 1.0 and
+  # latest (image tags can't carry the +). Pull requests build without
+  # pushing.
   docker:
     # contents: the release tag and its Release; actions: dispatch the tag
     # build (a tag pushed with GITHUB_TOKEN triggers no run); the rest:
@@ -47,5 +47,5 @@ jobs:
       # auto-release runs inside docker-ci: Monday's schedule releases with
       # this strategy, a push to main only a CVE fix.
       release_strategy: conventional
-      release_upstream_command: sed -n 's#^FROM .*thelounge/thelounge:\([^@]*\)@.*#\1#p' Dockerfile
+      release_metadata_command: printf 'up%s' "$(sed -n 's#^FROM .*thelounge/thelounge:\([^@]*\)@.*#\1#p' Dockerfile)"
     secrets: inherit
