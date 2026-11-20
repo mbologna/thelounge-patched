@@ -35,18 +35,36 @@ WAL mode is stored in the database file and stays after you switch back.
 
 ```sh
 docker run -d -p 9000:9000 -v thelounge:/var/opt/thelounge \
-  ghcr.io/mbologna/thelounge-patched:4.5.2
+  ghcr.io/mbologna/thelounge-patched:4.5.2-r1
 ```
 
 Install plugins and themes into the volume, the same way as with the official
 image (`thelounge install <package>`). The image doesn't bundle any, because
 the volume mounted on `/var/opt/thelounge` would hide them.
 
-The image tag is the upstream The Lounge version, read from the `FROM` line in
-the `Dockerfile`. Images are built for linux/amd64 and linux/arm64 on every push
-to `main`, and each build pushes that version tag again. A rebuild of the same
-version therefore changes its digest, so pin `tag@sha256:…` and let Renovate
-move the digest.
+## Versioning
+
+A release is the upstream The Lounge version, read from the `FROM` line in the
+`Dockerfile`, plus this repository's release number on it: the git tag
+`v4.5.2+r1` is the first release on The Lounge 4.5.2. A patch change, a base
+image rebuild or a dependency update makes `r2`, and a new The Lounge version
+starts again at `r1`. This is pattern B of the
+[versioning standard](https://github.com/mbologna/.github/blob/main/VERSIONING.md).
+
+Each release builds linux/amd64 and linux/arm64 images and pushes:
+
+- `4.5.2-r1`, which never moves: pin it as `4.5.2-r1@sha256:…`;
+- `4.5.2`, `4.5` and `latest`, which follow the newest release.
+
+Renovate's default Docker versioning would read `-r1` as a fixed suffix and
+never offer `-r2`. The shared preset (`github>mbologna/.github//renovate-config.json`)
+gives this image regex versioning, so a consumer that extends it gets every
+release.
+
+[auto-release](https://github.com/mbologna/auto-release) tags on Mondays when a
+`feat`, `fix`, `perf`, `revert` or breaking commit landed, or the `FROM` line
+moved to a new The Lounge version; a CVE fix releases at once. Images built
+before this scheme carry only the upstream version tag.
 
 ## When to retire this image
 
