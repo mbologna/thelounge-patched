@@ -35,7 +35,7 @@ WAL mode is stored in the database file and stays after you switch back.
 
 ```sh
 docker run -d -p 9000:9000 -v thelounge:/var/opt/thelounge \
-  ghcr.io/mbologna/thelounge-patched:4.5.2-r1
+  ghcr.io/mbologna/thelounge-patched:1.0.0
 ```
 
 Install plugins and themes into the volume, the same way as with the official
@@ -44,27 +44,18 @@ the volume mounted on `/var/opt/thelounge` would hide them.
 
 ## Versioning
 
-A release is the upstream The Lounge version, read from the `FROM` line in the
-`Dockerfile`, plus this repository's release number on it: the git tag
-`v4.5.2+r1` is the first release on The Lounge 4.5.2. A patch change, a base
-image rebuild or a dependency update makes `r2`, and a new The Lounge version
-starts again at `r1`. This is pattern B of the
+Releases are this repository's own SemVer with the upstream The Lounge version
+as build metadata: the git tag `v1.0.0+up4.5.2` is version 1.0.0 of these
+patches, on The Lounge 4.5.2, read from the `FROM` line in the `Dockerfile`.
+[auto-release](https://github.com/mbologna/auto-release) cuts them on Mondays
+from the Conventional Commits (`feat` minor; `fix`, `perf`, `revert` patch; a
+breaking change major), and a new The Lounge version releases on its own; a CVE
+fix releases at once. See the
 [versioning standard](https://github.com/mbologna/.github/blob/main/VERSIONING.md).
 
-Each release builds linux/amd64 and linux/arm64 images and pushes:
-
-- `4.5.2-r1`, which never moves: pin it as `4.5.2-r1@sha256:…`;
-- `4.5.2`, `4.5` and `latest`, which follow the newest release.
-
-Renovate's default Docker versioning would read `-r1` as a fixed suffix and
-never offer `-r2`. The shared preset (`github>mbologna/.github//renovate-config.json`)
-gives this image regex versioning, so a consumer that extends it gets every
-release.
-
-[auto-release](https://github.com/mbologna/auto-release) tags on Mondays when a
-`feat`, `fix`, `perf`, `revert` or breaking commit landed, or the `FROM` line
-moved to a new The Lounge version; a CVE fix releases at once. Images built
-before this scheme carry only the upstream version tag.
+Each release builds linux/amd64 and linux/arm64 images, tagged `X.Y.Z`, `X.Y`
+and `latest` (image tags can't carry the `+`). Pin `X.Y.Z@sha256:…`; the
+release notes and the git tag say which The Lounge version it is.
 
 ## When to retire this image
 
