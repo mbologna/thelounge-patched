@@ -62,3 +62,19 @@ release notes and the git tag say which The Lounge version it is.
 When the table above is empty. For #413 that takes more than a merge: The Lounge
 pins irc-framework to a git commit in its `package.json`
 (`github:kiwiirc/irc-framework#9578e59` in v4.5.2), not to a version range.
+
+None can be dropped yet (checked 2026-11-23):
+
+- irc-framework merged #413 on 2026-11-19, but The Lounge still pins an older
+  commit ([#45](https://github.com/mbologna/thelounge-patched/issues/45)).
+- #5158 is still open
+  ([#46](https://github.com/mbologna/thelounge-patched/issues/46)).
+- The Lounge still opens its database in rollback-journal mode; upstream issue
+  [thelounge#4773](https://github.com/thelounge/thelounge/issues/4773)
+  ([#47](https://github.com/mbologna/thelounge-patched/issues/47)).
+- The Lounge still saves the fallback nick; upstream issues
+  [#4350](https://github.com/thelounge/thelounge/issues/4350) and
+  [#4816](https://github.com/thelounge/thelounge/issues/4816)
+  ([#48](https://github.com/mbologna/thelounge-patched/issues/48)).
+- The Lounge still opens query windows for services
+  ([#49](https://github.com/mbologna/thelounge-patched/issues/49)).
