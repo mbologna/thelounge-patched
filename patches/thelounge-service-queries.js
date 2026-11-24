@@ -1,5 +1,5 @@
-// Private messages to or from network services don't open query windows. Not
-// upstream yet: a future PR.
+// Private messages to or from network services don't open query windows.
+// Upstream: https://github.com/thelounge/thelounge/pull/5176.
 //
 // The Lounge opens a query window for every private message without one, so
 // connecting to a network that is identified through NickServ leaves a
@@ -17,13 +17,14 @@
 // target (Q@CServe.quakenet.org) matches by its nick. A query window that is
 // already open keeps working: close it once.
 //
-// Drop when: The Lounge stops opening query windows for services itself.
+// Drop when: a release of The Lounge includes #5176 or stops opening query
+// windows for services itself.
 
 'use strict';
 
 const { findFile, patchFile } = require('./lib');
 
-const UPSTREAM = 'no query windows for services (no upstream PR yet)';
+const UPSTREAM = 'thelounge/thelounge#5176';
 
 patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UPSTREAM, (replaceOnce) => {
     replaceOnce(

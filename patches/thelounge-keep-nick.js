@@ -1,5 +1,6 @@
-// Keeps the configured nick after a "nick in use" at connect. Not upstream
-// yet: a future PR (related: thelounge/thelounge#4816, fallback nicks).
+// Keeps the configured nick after a "nick in use" at connect. Covered in part
+// by the open https://github.com/thelounge/thelounge/pull/4973, which keeps the
+// saved nick but doesn't retry it (related: #4350, #4816).
 //
 // When the nick is taken while registering (often by the client's own previous
 // connection, not yet timed out), The Lounge appends a random digit and
@@ -25,7 +26,7 @@
 
 const { findFile, patchFile } = require('./lib');
 
-const UPSTREAM = 'keep the configured nick (no upstream PR yet)';
+const UPSTREAM = 'thelounge/thelounge#4973, in part: it does not retry the nick';
 
 patchFile(findFile('thelounge', 'dist/server/models/network.js'), UPSTREAM, (replaceOnce) => {
     replaceOnce(

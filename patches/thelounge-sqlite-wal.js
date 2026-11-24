@@ -1,4 +1,5 @@
-// Opens the message log in WAL mode. Not upstream yet: a future PR.
+// Opens the message log in WAL mode. Upstream:
+// https://github.com/thelounge/thelounge/pull/5175 (closes #4773).
 //
 // The Lounge opens its SQLite database with no PRAGMAs, so it uses the default
 // rollback journal, where any reader blocks the writer. A program that reads
@@ -11,13 +12,13 @@
 // Runs right after the database is opened: journal_mode can't change inside a
 // transaction, and run_migrations() opens one.
 //
-// Drop when: The Lounge sets WAL itself (an upstream PR to draft from this).
+// Drop when: a release of The Lounge includes #5175 or sets WAL itself.
 
 'use strict';
 
 const { findFile, patchFile } = require('./lib');
 
-patchFile(findFile('thelounge', 'dist/server/plugins/messageStorage/sqlite.js'), 'WAL journal mode (no upstream PR yet)', (replaceOnce) => {
+patchFile(findFile('thelounge', 'dist/server/plugins/messageStorage/sqlite.js'), 'thelounge/thelounge#5175', (replaceOnce) => {
     replaceOnce(
         'WAL at open',
         '        this.database = new node_sqlite_1.DatabaseSync(connection_string);\n',
