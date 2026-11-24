@@ -1,6 +1,7 @@
 // Build-time check of thelounge-service-queries.js: drives the patched message
 // handler with stand-ins for irc-framework, the client and the network, and
-// fails the build unless service messages stay out of query windows.
+// fails the build unless service messages stay out of query windows and
+// never highlight.
 
 'use strict';
 
@@ -33,13 +34,16 @@ function stubChan(type, name, sink) {
 
 try {
     const lobbyMessages = [];
+    const channelMessages = [];
     const queries = [];
+    const pushedFrom = [];
     const lobby = stubChan('lobby', '', lobbyMessages);
+    const channel = stubChan('channel', '#chan', channelMessages);
     const client = {
         emit() {},
         save() {},
         mentions: [],
-        manager: { webPush: { push() {} } },
+        manager: { webPush: { push: (c, payload) => pushedFrom.push(payload.body) } },
         createChannel: (opts) => {
             const chan = stubChan(opts.type, opts.name, []);
             queries.push(opts.name);
@@ -49,7 +53,8 @@ try {
     const network = {
         uuid: 'verify',
         host: 'irc.invalid',
-        getChannel: () => undefined,
+        getChannel: (name) => (name === '#chan' ? channel : undefined),
+        highlightRegex: /(?:^|[^a-z0-9])me(?:[^a-z0-9]|$)/i,
         getLobby: () => lobby,
         isIgnoredUser: () => false,
         addChannel: () => 0,
@@ -59,6 +64,8 @@ try {
     messageEvents.call(client, irc, network);
     const say = (nick, target, message) =>
         irc.emit('privmsg', { nick, ident: 'u', hostname: 'h', target, message });
+    const notice = (nick, target, message) =>
+        irc.emit('notice', { nick, ident: 'u', hostname: 'h', target, message });
 
     // A service answers privately: server window, no query.
     say('NickServ', 'me', 'You are now identified.');
@@ -77,6 +84,17 @@ try {
     assert.strictEqual(queries.length, 0, 'no query window for the listed nicks');
     assert.strictEqual(lobbyMessages.length, 3, 'their replies in the server window');
 
+    // Nothing a service sends highlights, in the server window or a channel,
+    // even when it names us; the same line from a person does.
+    say('NickServ', 'me', 'You are now logged in as me.');
+    notice('NickServ', 'me', 'Password accepted - you are now recognized, me.');
+    say('SomeBot', '#chan', 'me: invite sent');
+    say('alice', '#chan', 'me: hello');
+    const lastLobby = lobbyMessages.slice(-2);
+    assert.deepStrictEqual(lastLobby.map((m) => m.highlight), [false, false], 'service lines in the server window do not highlight');
+    assert.deepStrictEqual(channelMessages.map((m) => m.highlight), [false, true], 'a service never highlights in a channel, a person does');
+    assert.ok(pushedFrom.every((body) => !/NickServ|SomeBot/.test(body)), 'no push notification for a service');
+
     // Anyone else still opens a query window.
     say('alice', 'me', 'hi');
     assert.deepStrictEqual(queries, ['alice'], 'a person still opens a query');
@@ -85,4 +103,4 @@ try {
 } finally {
     fs.rmSync(process.env.THELOUNGE_HOME, { recursive: true, force: true });
 }
-console.log('verified: services stay out of query windows');
+console.log('verified: services stay out of query windows and never highlight');
