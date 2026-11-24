@@ -1,5 +1,5 @@
-// Private messages to or from network services don't open query windows. Not
-// upstream yet: a future PR.
+// Private messages to or from network services don't open query windows.
+// Upstream: https://github.com/thelounge/thelounge/pull/5176.
 //
 // The Lounge opens a query window for every private message without one, so
 // connecting to a network that is identified through NickServ leaves a
@@ -17,13 +17,18 @@
 // target (Q@CServe.quakenet.org) matches by its nick. A query window that is
 // already open keeps working: close it once.
 //
-// Drop when: The Lounge stops opening query windows for services itself.
+// A message, notice or action from a service never counts as a highlight
+// either, in any window: NickServ's "You are now logged in as <nick>" or a
+// bot's "<nick>: invite sent" would otherwise notify on every connect.
+//
+// Drop when: a release of The Lounge includes #5176 or itself keeps services
+// out of query windows and out of highlights.
 
 'use strict';
 
 const { findFile, patchFile } = require('./lib');
 
-const UPSTREAM = 'no query windows for services (no upstream PR yet)';
+const UPSTREAM = 'thelounge/thelounge#5176';
 
 patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UPSTREAM, (replaceOnce) => {
     replaceOnce(
@@ -31,7 +36,8 @@ patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UP
         'function convertForHandle(type, data) {\n',
         [
             '// thelounge-patched: private messages to or from these nicks never open a',
-            '// query window (THELOUNGE_SERVICE_NICKS adds more, comma-separated).',
+            '// query window and nothing they send highlights (THELOUNGE_SERVICE_NICKS',
+            '// adds more, comma-separated).',
             'const serviceNicks = new Set(["nickserv", "chanserv", "memoserv", "operserv", "hostserv", "botserv", "saslserv"]',
             '    .concat((process.env.THELOUNGE_SERVICE_NICKS || "").split(",").map((n) => n.trim().toLowerCase()).filter(Boolean)));',
             'function isServiceNick(name) {',
@@ -59,6 +65,18 @@ patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UP
             '                // Send notices that are not targeted at us, and private messages',
             '                // from services (thelounge-patched), into the server window',
             '                if (data.type === msg_2.MessageType.NOTICE || isServiceNick(target)) {',
+        ].join('\n')
+    );
+    replaceOnce(
+        'services never highlight',
+        '        // if highlight exceptions match, do not highlight at all\n',
+        [
+            '        // thelounge-patched: nothing a service sends is a highlight',
+            '        if (msg.highlight && isServiceNick(data.nick)) {',
+            '            msg.highlight = false;',
+            '        }',
+            '        // if highlight exceptions match, do not highlight at all',
+            '',
         ].join('\n')
     );
 });
