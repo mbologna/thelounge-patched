@@ -43,6 +43,7 @@ try {
         emit() {},
         save() {},
         mentions: [],
+        networks: [{}],
         manager: { webPush: { push: (c, payload) => pushedFrom.push(payload.body) } },
         createChannel: (opts) => {
             const chan = stubChan(opts.type, opts.name, []);

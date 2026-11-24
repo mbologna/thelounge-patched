@@ -8,9 +8,10 @@ RUN apk upgrade --no-cache
 # One script per upstream PR (open, or still to be drafted): see patches/ and
 # the table in README.md. Each fails the build if the code it edits changed
 # upstream. verify.js checks the SQLite patches on a real database, and
-# verify-keep-nick.js, verify-service-queries.js and verify-msgid-dedup.js
-# check the nick, query window and msgid patches. The scripts are
-# bind-mounted, so they never become a layer of the image.
+# verify-keep-nick.js, verify-service-queries.js, verify-msgid-dedup.js and
+# verify-notification-network.js check the nick, query window, msgid and
+# notification title patches. The scripts are bind-mounted, so they never
+# become a layer of the image.
 RUN --mount=type=bind,source=patches,target=/tmp/patches \
     node /tmp/patches/irc-framework-413-reconnect.js \
     && node /tmp/patches/thelounge-sqlite-wal.js \
@@ -18,10 +19,12 @@ RUN --mount=type=bind,source=patches,target=/tmp/patches \
     && node /tmp/patches/thelounge-keep-nick.js \
     && node /tmp/patches/thelounge-service-queries.js \
     && node /tmp/patches/thelounge-msgid-dedup.js \
+    && node /tmp/patches/thelounge-notification-network.js \
     && node /tmp/patches/verify.js \
     && node /tmp/patches/verify-keep-nick.js \
     && node /tmp/patches/verify-service-queries.js \
-    && node /tmp/patches/verify-msgid-dedup.js
+    && node /tmp/patches/verify-msgid-dedup.js \
+    && node /tmp/patches/verify-notification-network.js
 
 # The node base image also ships npm, npx, corepack and a global yarn. The
 # Lounge needs none of them: `thelounge install` runs the yarn that is one of
