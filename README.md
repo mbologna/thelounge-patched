@@ -42,6 +42,12 @@ Install plugins and themes into the volume, the same way as with the official
 image (`thelounge install <package>`). The image doesn't bundle any, because
 the volume mounted on `/var/opt/thelounge` would hide them.
 
+`THELOUNGE_SERVICE_NICKS` (`-e THELOUNGE_SERVICE_NICKS=Q,X`) adds nicks to
+the services whose private messages stay out of query windows.
+[thelounge-plugin-apprise-push](https://github.com/mbologna/thelounge-plugin-apprise-push)
+2.0 and later reads the same variable and sends no push notification for
+those nicks.
+
 ## Versioning
 
 Releases are this repository's own SemVer with the upstream The Lounge version
@@ -82,3 +88,12 @@ None can be dropped yet (checked 2026-11-23):
 - The Lounge still opens query windows for services; pull request
   [thelounge#5176](https://github.com/thelounge/thelounge/pull/5176)
   ([#49](https://github.com/mbologna/thelounge-patched/issues/49)).
+
+## Related projects
+
+- [thelounge-digest](https://github.com/mbologna/thelounge-digest): a
+  scheduled digest of The Lounge's channel logs, sent through Apprise.
+- [thelounge-plugin-apprise-push](https://github.com/mbologna/thelounge-plugin-apprise-push):
+  push notifications for highlights and private messages through Apprise.
+- [thelounge-theme-chat](https://github.com/mbologna/thelounge-theme-chat): a
+  light and dark theme with digest-style messages.
