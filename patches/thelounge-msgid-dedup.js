@@ -1,5 +1,5 @@
 // A message whose msgid the window already holds is not stored or notified
-// again. Upstream: PR to come (branch mbologna/thelounge:msgid-dedup).
+// again. Upstream: https://github.com/thelounge/thelounge/pull/5178.
 //
 // Some servers and bouncers send messages the client already has. ergo sends
 // a private conversation again, in an IRCv3 chathistory batch, when The
@@ -21,7 +21,7 @@
 
 const { findFile, patchFile } = require('./lib');
 
-const UPSTREAM = 'PR to come (branch mbologna/thelounge:msgid-dedup)';
+const UPSTREAM = 'thelounge/thelounge#5178';
 
 patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UPSTREAM, (replaceOnce) => {
     replaceOnce(

@@ -1,5 +1,5 @@
 // Notification titles name the network when the account has more than one.
-// Upstream: PR to come (branch mbologna/thelounge:notification-network).
+// Upstream: https://github.com/thelounge/thelounge/pull/5179.
 //
 // The Lounge titles a Web Push notification after the window alone
 // ("#test (1 mention)", "bob (2 new messages)") and a browser notification
@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const { findFile, patchFile, fail } = require('./lib');
 
-const UPSTREAM = 'PR to come (branch mbologna/thelounge:notification-network)';
+const UPSTREAM = 'thelounge/thelounge#5179';
 
 patchFile(findFile('thelounge', 'dist/server/plugins/irc-events/message.js'), UPSTREAM, (replaceOnce) => {
     replaceOnce(
